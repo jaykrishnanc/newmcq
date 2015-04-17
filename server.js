@@ -6,7 +6,9 @@ var express = require('express');
 
 var app = express();
 require('./server/mongoose');
-require('./server/routes');
+require('./server/routes')(app);
+
+
 
 app.listen(5000,function(){
     console.log("Server on 5000")

@@ -1,7 +1,8 @@
 /**
  * Created by JAYA on 17-04-2015.
  */
-var mongoose = require('mongoose');
+var mongoose = require('mongoose'),
+    encrypt = require('../server/encryption.js');
 
 mongoose.connect('mongodb://dbadmin:dbpass@ds061681.mongolab.com:61681/questiondb');
 
@@ -22,7 +23,7 @@ var userSchema = new Schema({
     fname    : String
     , laname     : String
     , regno      : String
-    , password      : String
+    , hashed_pwd     : String
     , course    : String
     , marklist   : [
         {
@@ -36,15 +37,21 @@ var userSchema = new Schema({
 });
 
 var
-     userModel = db.model('userModel', userSchema)
-    , m = new userModel;
-m.save();
+     User = db.model('userModel', userSchema);
+//    , m = new userModel;
+//m.save();
 
 //Controllers
     //User Controller
 exports.getUser = function(req, res) {
 
-    userModel.find({}).exec(function(err, collection) {
+    User.find({}).exec(function(err, collection) {
         res.send(collection);
     })
+};
+exports.createUser=function(req,res){
+    var salt, hash;
+    salt = encrypt.createSalt();
+    hash = encrypt.hashPwd(salt, req.body.pwd);
+    User.create({fname:req.body.fname,lname:req.body.lname,regno:req.body.regno,salt:salt,hashed_pwd:hash,course:req.body.course});
 };
